@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bookify Library</title>
+    <meta
+      name="description"
+      content="A 100% accurate slice of the Wollondilly Library design using Tailwind CSS and Alpine.js"
+    />
+
+    <!-- Memuat CSS yang di-build oleh Tailwind -->
+    <link href="./dist/output.css" rel="stylesheet" />
+
+    <!-- Favicon (placeholder) -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>"
+    />
+  </head>
+
+  <!-- 
+  Root Alpine.js
+  x-data mengontrol state global:
+  - isDark: Status Dark Mode
+  - isMenuOpen: Status menu mobile
+  - isModalOpen: Status modal
+  - activeDropdown: Mengelola dropdown yang aktif (jika ada banyak)
+  - init(): Memeriksa preferensi dark mode dari localStorage
+-->
+  <body
+    x-data="{ 
+    isDark: false, 
+    isMenuOpen: false, 
+    isModalOpen: false,
+    activeDropdown: null,
+    init() {
+      this.isDark = localStorage.getItem('isDark') === 'true';
+    },
+    toggleDark() {
+      this.isDark = !this.isDark;
+      localStorage.setItem('isDark', this.isDark);
+    }
+  }"
+    :class="{ 'dark': isDark }"
+    class="bg-base-100 text-base-content"
+  >
+    <!-- WRAPPER UTAMA -->
+    <div class="flex flex-col min-h-screen">
+      <!-- [1] TOP ALERT BAR -->
+      <div
+        class="bg-secondary dark:bg-secondary-dark text-secondary-content py-2 text-center text-sm px-4"
+      >
+        <p>
+          Disruptions to services at Wollondilly Library, Picton and the Mobile
+          Library in December.
+          <a href="#" class="font-bold underline hover:opacity-80"
+            >Click for details.</a
+          >
+        </p>
+      </div>
+
+      <!-- [2] HEADER & NAVIGATION -->
+      <header
+        class="bg-base-100 dark:bg-base-200-dark shadow-md sticky top-0 z-30"
+      >
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-20">
+            <!-- Logo -->
+            <div class="shrink-0">
+              <a href="#" title="Wollondilly Library Home">
+                <!-- Placeholder untuk Logo, ganti dengan SVG atau IMG -->
+                <span
+                  class="font-serif text-2xl font-bold text-primary dark:text-primary-dark"
+                  >Bookify Library</span
+                >
+              </a>
+            </div>
+
+            <!-- Navigasi Desktop (Hidden di mobile) -->
+            <nav class="hidden lg:flex lg:items-center lg:space-x-6">
+              <!-- Tombol Dark Mode -->
+              <button
+                @click="toggleDark()"
+                class="btn btn-ghost btn-icon"
+                aria-label="Toggle Dark Mode"
+              >
+                <!-- Ikon Matahari -->
+                <svg
+                  x-show="!isDark"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+                <!-- Ikon Bulan -->
+                <svg
+                  x-show="isDark"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  style="display: none"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  />
+                </svg>
+              </button>
+
+              <!-- <a
+                href="#"
+                class="btn btn-ghost uppercase text-sm font-semibold tracking-wider"
+                >Become a Member</a
+              > -->
+
+              <!-- Tombol Modal (Contoh) -->
+              <!-- <button
+                @click="isModalOpen = true"
+                class="btn btn-ghost uppercase text-sm font-semibold tracking-wider"
+              >
+                Open Modal
+              </button> -->
+
+              <!-- <button class="btn btn-ghost btn-icon" aria-label="Search">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </button> -->
+
+              <!-- Dropdown Menu (Contoh) -->
+              <div
+                class="relative"
+                x-data="{ isOpen: false }"
+                @keydown.escape.window="isOpen = false"
+              >
+                <button
+                  @click="isOpen = !isOpen"
+                  class="btn btn-ghost uppercase text-sm font-semibold tracking-wider"
+                >
+                  <span>Login</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 ml-1"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                <div
+                  x-show="isOpen"
+                  @click.outside="isOpen = false"
+                  x-transition:enter="transition ease-out duration-100"
+                  x-transition:enter-start="opacity-0 transform scale-95"
+                  x-transition:enter-end="opacity-100 transform scale-100"
+                  x-transition:leave="transition ease-in duration-75"
+                  x-transition:leave-start="opacity-100 transform scale-100"
+                  x-transition:leave-end="opacity-0 transform scale-95"
+                  class="dropdown-content"
+                  style="display: none"
+                >
+                  <a href="#" class="dropdown-item">My Account</a>
+                  <a href="#" class="dropdown-item">My Loans</a>
+                  <hr class="border-base-200 dark:border-base-300-dark" />
+                  <a href="#" class="dropdown-item">Logout</a>
+                </div>
+              </div>
+            </nav>
+
+            <!-- Tombol Menu Mobile (Hidden di desktop) -->
+            <div class="lg:hidden flex items-center space-x-2">
+              <!-- Tombol Dark Mode Mobile -->
+              <button
+                @click="toggleDark()"
+                class="btn btn-ghost btn-icon"
+                aria-label="Toggle Dark Mode"
+              >
+                <svg
+                  x-show="!isDark"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+                <svg
+                  x-show="isDark"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  style="display: none"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  />
+                </svg>
+              </button>
+
+              <!-- Tombol Hamburger -->
+              <button
+                @click="isMenuOpen = !isMenuOpen"
+                class="btn btn-ghost btn-icon uppercase text-sm font-semibold"
+                aria-label="Toggle Menu"
+              >
+                <svg
+                  x-show="!isMenuOpen"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 6h16M4 12h16m-7 6h7"
+                  />
+                </svg>
+                <svg
+                  x-show="isMenuOpen"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  style="display: none"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                <span class="ml-2 hidden sm:inline">Menu</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel Menu Mobile -->
+        <div
+          x-show="isMenuOpen"
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="opacity-0 transform -translate-y-4"
+          x-transition:enter-end="opacity-100 transform translate-y-0"
+          x-transition:leave="transition ease-in duration-150"
+          x-transition:leave-start="opacity-100 transform translate-y-0"
+          x-transition:leave-end="opacity-0 transform -translate-y-4"
+          class="lg:hidden absolute top-full left-0 w-full bg-base-100 dark:bg-base-200-dark shadow-lg border-t border-base-200 dark:border-base-300-dark"
+          style="display: none"
+        >
+          <nav classs="flex flex-col p-4 space-y-2">
+            <a
+              href="#"
+              class="block px-4 py-2 rounded-md hover:bg-base-200 dark:hover:bg-base-300-dark font-medium"
+              >Events</a
+            >
+            <a
+              href="#"
+              class="block px-4 py-2 rounded-md hover:bg-base-200 dark:hover:bg-base-300-dark font-medium"
+              >Services</a
+            >
+            <a
+              href="#"
+              class="block px-4 py-2 rounded-md hover:bg-base-200 dark:hover:bg-base-300-dark font-medium"
+              >eResources</a
+            >
+            <a
+              href="#"
+              class="block px-4 py-2 rounded-md hover:bg-base-200 dark:hover:bg-base-300-dark font-medium"
+              >Catalogue</a
+            >
+            <a
+              href="#"
+              class="block px-4 py-2 rounded-md hover:bg-base-200 dark:hover:bg-base-300-dark font-medium"
+              >Meeting & Study Spaces</a
+            >
+            <hr class="my-2 border-base-200 dark:border-base-300-dark" />
+            <a
+              href="#"
+              class="block px-4 py-2 rounded-md hover:bg-base-200 dark:hover:bg-base-300-dark font-medium"
+              >Login</a
+            >
+            <a
+              href="#"
+              class="block px-4 py-2 rounded-md hover:bg-base-200 dark:hover:bg-base-300-dark font-medium"
+              >Become a Member</a
+            >
+            <button
+              @click="isModalOpen = true"
+              class="block w-full text-left px-4 py-2 rounded-md hover:bg-base-200 dark:hover:bg-base-300-dark font-medium"
+            >
+              Open Modal
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      <!-- [3] MAIN CONTENT -->
+      <main class="grow">
+        <!-- Hero Section -->
+        <section
+          class="relative bg-hero-pattern bg-cover bg-center text-white pt-24 pb-32"
+        >
+          <!-- Overlay -->
+          <div class="absolute inset-0 bg-black/60"></div>
+
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl">
+              <h1
+                class="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-white!"
+              >
+                Welcome to Bookify Library
+              </h1>
+
+              <!-- Hero Search Form -->
+              <form action="#" class="mt-8 flex flex-col sm:flex-row gap-2">
+                <label for="hero-search" class="sr-only"
+                  >Search the catalogue</label
+                >
+                <input
+                  type="search"
+                  id="hero-search"
+                  name="search"
+                  placeholder="Search the catalogue..."
+                  class="form-input bg-white/90! text-base-content! !placeholder:text-base-content-secondary/70 focus:ring-primary! focus:border-primary! grow"
+                />
+                <button type="submit" class="btn btn-primary px-8">
+                  Search
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Hero Navigation -->
+          <nav
+            class="absolute bottom-0 left-0 w-full bg-secondary dark:bg-secondary-dark/90 text-secondary-content uppercase text-sm font-semibold tracking-wider z-10"
+          >
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+              <!-- Scrollable container untuk mobile -->
+              <div class="flex overflow-x-auto no-scrollbar">
+                <a
+                  href="#"
+                  class="shrink-0 px-5 py-4 hover:bg-black/20 transition-colors"
+                  >Events</a
+                >
+                <a
+                  href="#"
+                  class="shrink-0 px-5 py-4 hover:bg-black/20 transition-colors"
+                  >Services</a
+                >
+                <a
+                  href="#"
+                  class="shrink-0 px-5 py-4 hover:bg-black/20 transition-colors"
+                  >eResources</a
+                >
+                <a
+                  href="#"
+                  class="shrink-0 px-5 py-4 hover:bg-black/20 transition-colors"
+                  >Catalogue</a
+                >
+                <a
+                  href="#"
+                  class="shrink-0 px-5 py-4 hover:bg-black/20 transition-colors"
+                  >Meeting & Study Spaces</a
+                >
+              </div>
+            </div>
+          </nav>
+
+          <!-- Panah Bawah (Dekoratif) -->
+          <div
+            class="absolute -bottom-6 left-1/2 -translate-x-1/2 z-20 bg-primary w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              />
+            </svg>
+          </div>
+        </section>
+
+        <!-- In Focus Section -->
+        <section class="py-16 sm:py-24 bg-base-100 dark:bg-base-100-dark">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <h2 class="font-serif text-3xl font-bold">POPULER BOOKS</h2>
+                <p
+                  class="text-base-content-secondary dark:text-base-content-secondary-dark mt-1"
+                >
+                  2023 Better Reading Top 100
+                </p>
+              </div>
+              <a href="#" class="btn btn-outline btn-sm hidden sm:inline-flex"
+                >Go to the Catalogue</a
+              >
+            </div>
+
+            <!-- Book Carousel (Scrollable Flex Container) -->
+            <div class="relative">
+              <div class="flex overflow-x-auto space-x-6 pb-4 no-scrollbar">
+                <!-- Book Card 1 -->
+                <div class="shrink-0 w-48">
+                  <div class="relative shadow-lg">
+                    <img
+                      src="https://placehold.co/400x600/D95D39/white?text=The+Alchemist"
+                      alt="The Alchemist"
+                      class="w-full h-auto object-cover rounded-md"
+                    />
+                    <span
+                      class="absolute top-2 left-2 badge badge-primary font-bold"
+                      >1 AVAILABLE</span
+                    >
+                  </div>
+                  <div class="mt-4 text-center">
+                    <h3 class="text-lg font-serif font-bold leading-tight">
+                      The Alchemist
+                    </h3>
+                    <p
+                      class="text-sm text-base-content-secondary dark:text-base-content-secondary-dark"
+                    >
+                      Paulo Coelho
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Book Card 2 -->
+                <div class="shrink-0 w-48">
+                  <div class="relative shadow-lg">
+                    <img
+                      src="https://placehold.co/400x600/3A3A3A/white?text=A+Man+Called+Ove"
+                      alt="A Man Called Ove"
+                      class="w-full h-auto object-cover rounded-md"
+                    />
+                    <span
+                      class="absolute top-2 left-2 badge badge-primary font-bold"
+                      >3 AVAILABLE</span
+                    >
+                  </div>
+                  <div class="mt-4 text-center">
+                    <h3 class="text-lg font-serif font-bold leading-tight">
+                      A Man Called Ove
+                    </h3>
+                    <p
+                      class="text-sm text-base-content-secondary dark:text-base-content-secondary-dark"
+                    >
+                      Fredrik Backman
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Book Card 3 -->
+                <div class="shrink-0 w-48">
+                  <div class="relative shadow-lg">
+                    <img
+                      src="https://placehold.co/400x600/D95D39/white?text=Treasure+and+Dirt"
+                      alt="Treasure and Dirt"
+                      class="w-full h-auto object-cover rounded-md"
+                    />
+                    <span
+                      class="absolute top-2 left-2 badge badge-primary font-bold"
+                      >1 AVAILABLE</span
+                    >
+                  </div>
+                  <div class="mt-4 text-center">
+                    <h3 class="text-lg font-serif font-bold leading-tight">
+                      Treasure and Dirt
+                    </h3>
+                    <p
+                      class="text-sm text-base-content-secondary dark:text-base-content-secondary-dark"
+                    >
+                      Chris Hammer
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Book Card 4 -->
+                <div class="shrink-0 w-48">
+                  <div class="relative shadow-lg">
+                    <img
+                      src="https://placehold.co/400x600/3A3A3A/white?text=Once+There+Were+Wolves"
+                      alt="Once There Were Wolves"
+                      class="w-full h-auto object-cover rounded-md"
+                    />
+                    <span
+                      class="absolute top-2 left-2 badge badge-primary font-bold"
+                      >2 AVAILABLE</span
+                    >
+                  </div>
+                  <div class="mt-4 text-center">
+                    <h3 class="text-lg font-serif font-bold leading-tight">
+                      Once There Were Wolves
+                    </h3>
+                    <p
+                      class="text-sm text-base-content-secondary dark:text-base-content-secondary-dark"
+                    >
+                      Chris Hammer
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Book Card 5 -->
+                <div class="shrink-0 w-48">
+                  <div class="relative shadow-lg">
+                    <img
+                      src="https://placehold.co/400x600/D90429/white?text=Outlander"
+                      alt="Outlander"
+                      class="w-full h-auto object-cover rounded-md"
+                    />
+                    <span
+                      class="absolute top-2 left-2 badge badge-primary font-bold"
+                      >1 AVAILABLE</span
+                    >
+                  </div>
+                  <div class="mt-4 text-center">
+                    <h3 class="text-lg font-serif font-bold leading-tight">
+                      Outlander
+                    </h3>
+                    <p
+                      class="text-sm text-base-content-secondary dark:text-base-content-secondary-dark"
+                    >
+                      Diana Gabaldon
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Book Card 6 (Bonus) -->
+                <div class="shrink-0 w-48">
+                  <div class="relative shadow-lg">
+                    <img
+                      src="https://placehold.co/400x600/3ABFF8/white?text=Project+Hail+Mary"
+                      alt="Project Hail Mary"
+                      class="w-full h-auto object-cover rounded-md"
+                    />
+                    <span
+                      class="absolute top-2 left-2 badge badge-primary font-bold"
+                      >4 AVAILABLE</span
+                    >
+                  </div>
+                  <div class="mt-4 text-center">
+                    <h3 class="text-lg font-serif font-bold leading-tight">
+                      Project Hail Mary
+                    </h3>
+                    <p
+                      class="text-sm text-base-content-secondary dark:text-base-content-secondary-dark"
+                    >
+                      Andy Weir
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- Panah Navigasi Carousel (Dekoratif) -->
+              <button
+                class="absolute top-1/2 -translate-y-1/2 -right-4 bg-white dark:bg-base-300-dark p-2 rounded-full shadow-lg text-primary dark:text-primary-dark hover:bg-base-200 hidden md:block"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+            <a href="#" class="btn btn-outline btn-sm mt-8 sm:hidden w-full"
+              >Go to the Catalogue</a
+            >
+          </div>
+        </section>
+
+        <!-- Disruptions Section -->
+        <section class="bg-primary dark:bg-primary text-primary-content">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 items-center">
+              <!-- Gambar -->
+              <div class="relative min-h-[300px] md:min-h-[450px]">
+                <img
+                  src="https://images.unsplash.com/photo-1544243621-3837f4b822f7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+                  alt="Library exterior"
+                  class="absolute inset-0 w-full h-full object-cover"
+                />
+                <!-- Placeholder untuk "Discover" badge -->
+                <div
+                  class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-xs text-white px-6 py-3 rounded-md font-serif text-2xl"
+                >
+                  discover
+                </div>
+              </div>
+
+              <!-- Teks -->
+              <div class="relative p-8 md:p-12 lg:p-16">
+                <!-- "New" Badge -->
+                <div
+                  class="absolute -top-6 right-6 bg-accent text-accent-content w-16 h-16 rounded-full flex items-center justify-center font-bold text-lg transform rotate-12 shadow-lg"
+                >
+                  New!
+                </div>
+
+                <h3 class="font-serif text-3xl font-bold text-white!">
+                  CHRISTMAS/ NEW YEAR DISRUPTIONS
+                </h3>
+                <p class="mt-4 text-lg text-white/90!">
+                  There will be some disruptions to our services at Wollondilly
+                  Library, Picton and the Mobile Library over the Christmas/New
+                  Year period. Please be aware of the changes by clicking the
+                  link below.
+                </p>
+                <a href="#" class="btn btn-outline-white mt-8"
+                  >Service Disruptions</a
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Our Services Section -->
+        <section class="py-16 sm:py-24 bg-base-200 dark:bg-base-200-dark">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="font-serif text-3xl font-bold text-center mb-12">
+              OUR SERVICES
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <!-- Service Card 1: Catalogue -->
+              <a
+                href="#"
+                class="card hover:shadow-2xl hover:-translate-y-1 group"
+              >
+                <div class="relative h-48 overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1550399105-c4db5fb85c18?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80"
+                    alt="Books on a shelf"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div class="card-body text-center">
+                  <h3
+                    class="card-title group-hover:text-primary dark:group-hover:text-primary-dark"
+                  >
+                    CATALOGUE
+                  </h3>
+                </div>
+              </a>
+
+              <!-- Service Card 2: Using Your Library -->
+              <a
+                href="#"
+                class="card hover:shadow-2xl hover:-translate-y-1 group"
+              >
+                <div class="relative h-48 overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1521737852577-686000328358?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80"
+                    alt="People in a library"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div class="card-body text-center">
+                  <h3
+                    class="card-title group-hover:text-primary dark:group-hover:text-primary-dark"
+                  >
+                    USING YOUR LIBRARY
+                  </h3>
+                </div>
+              </a>
+
+              <!-- Service Card 3: Home Library Service -->
+              <a
+                href="#"
+                class="card hover:shadow-2xl hover:-translate-y-1 group"
+              >
+                <div class="relative h-48 overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1532012197267-da84d127e765?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80"
+                    alt="Stack of books"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div class="card-body text-center">
+                  <h3
+                    class="card-title group-hover:text-primary dark:group-hover:text-primary-dark"
+                  >
+                    HOME LIBRARY SERVICE
+                  </h3>
+                </div>
+              </a>
+
+              <!-- Service Card 4: Mobile Library -->
+              <a
+                href="#"
+                class="card hover:shadow-2xl hover:-translate-y-1 group"
+              >
+                <div class="relative h-48 overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1599839603099-0d33158c63f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+                    alt="A library van"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div class="card-body text-center">
+                  <h3
+                    class="card-title group-hover:text-primary dark:group-hover:text-primary-dark"
+                  >
+                    MOBILE LIBRARY
+                  </h3>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Contoh Form (Tambahan) -->
+        <section class="py-16 sm:py-24 bg-base-100 dark:bg-base-100-dark">
+          <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
+            <h2 class="font-serif text-3xl font-bold text-center mb-8">
+              Contact Us
+            </h2>
+            <form action="#" class="space-y-6">
+              <div>
+                <label for="name" class="form-label">Full Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  class="form-input"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div>
+                <label for="email" class="form-label">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-input"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div>
+                <label for="subject" class="form-label">Subject</label>
+                <select id="subject" name="subject" class="form-select">
+                  <option>General Inquiry</option>
+                  <option>Membership</option>
+                  <option>Events</option>
+                </select>
+              </div>
+              <div>
+                <label for="message" class="form-label">Message</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="4"
+                  class="form-textarea"
+                  placeholder="Your message..."
+                ></textarea>
+              </div>
+              <fieldset>
+                <legend class="form-label">Preferred Contact Method</legend>
+                <div class="flex items-center space-x-6 mt-2">
+                  <label class="flex items-center">
+                    <input
+                      type="radio"
+                      name="contact-method"
+                      value="email"
+                      class="form-radio"
+                    />
+                    <span class="ml-2 text-sm">Email</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input
+                      type="radio"
+                      name="contact-method"
+                      value="phone"
+                      class="form-radio"
+                    />
+                    <span class="ml-2 text-sm">Phone</span>
+                  </label>
+                </div>
+              </fieldset>
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="newsletter"
+                  name="newsletter"
+                  class="form-checkbox"
+                />
+                <label for="newsletter" class="ml-2 text-sm"
+                  >Sign up for our newsletter</label
+                >
+              </div>
+              <div>
+                <button type="submit" class="btn btn-primary w-full sm:w-auto">
+                  Send Message
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <!-- [4] FOOTER -->
+      <footer
+        class="bg-secondary dark:bg-secondary-dark text-secondary-content mt-16"
+      >
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h4 class="font-serif text-xl font-bold text-white! mb-4">
+                Bookify Library
+              </h4>
+              <p class="text-white/80!">
+                Connecting our community to new ideas, learning, and discovery.
+              </p>
+            </div>
+            <div>
+              <h5
+                class="font-semibold text-white! uppercase tracking-wider mb-4"
+              >
+                Quick Links
+              </h5>
+              <ul class="space-y-2">
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/80! hover:text-white! hover:underline"
+                    >Events</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/80! hover:text-white! hover:underline"
+                    >eResources</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/80! hover:text-white! hover:underline"
+                    >Contact Us</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="text-white/80! hover:text-white! hover:underline"
+                    >Locations & Hours</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h5
+                class="font-semibold text-white! uppercase tracking-wider mb-4"
+              >
+                Follow Us
+              </h5>
+              <!-- Social Icons (Placeholders) -->
+              <div class="flex space-x-4">
+                <a
+                  href="#"
+                  aria-label="Facebook"
+                  class="text-white/80! hover:text-white!"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"
+                    />
+                  </svg>
+                </a>
+                <a
+                  href="#"
+                  aria-label="Instagram"
+                  class="text-white/80! hover:text-white!"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.148 3.227-1.669 4.771-4.919 4.919-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.07-1.646-.07-4.85s.012-3.584.07-4.85c.148-3.227 1.669-4.771 4.919-4.919 1.266-.058 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.059 1.689.073 4.948.073s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.059-1.281.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8 border-t border-white/20">
+            <div
+              class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-white/70!"
+            >
+              <p>&copy; 2025 Bookify Library. All rights reserved.</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- Akhir WRAPPER UTAMA -->
+
+    <!-- [5] MODAL DIALOG (dikontrol oleh isModalOpen) -->
+    <div
+      x-show="isModalOpen"
+      x-transition:enter="ease-out duration-300"
+      x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100"
+      x-transition:leave="ease-in duration-200"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave-end="opacity-0"
+      class="modal-backdrop"
+      style="display: none"
+    >
+      <div
+        x-show="isModalOpen"
+        @click.outside="isModalOpen = false"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95"
+        class="modal-box"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="card-title">Contoh Modal Dialog</h3>
+          <button
+            @click="isModalOpen = false"
+            class="btn btn-ghost btn-icon -mr-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <p
+          class="text-base-content-secondary dark:text-base-content-secondary-dark mb-6"
+        >
+          Ini adalah konten di dalam modal. Anda bisa meletakkan formulir,
+          peringatan, atau informasi tambahan di sini. Modal ini dikontrol penuh
+          oleh Alpine.js.
+        </p>
+
+        <div class="flex justify-end space-x-3">
+          <button @click="isModalOpen = false" class="btn btn-ghost">
+            Cancel
+          </button>
+          <button @click="isModalOpen = false" class="btn btn-primary">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- [6] SCRIPT ALPINE.JS (WAJIB di akhir body) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"
+      defer
+    ></script>
+  </body>
+</html>
